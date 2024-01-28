@@ -13,8 +13,8 @@ function generateQuestion() {
         return eval(currentQuestion);
     }
 
-    let num1 = Math.floor(Math.random() * 10) + 1;
-    let num2 = Math.floor(Math.random() * 10) + 1;
+    let num1 = Math.floor(Math.random() * 12) + 1;
+    let num2 = Math.floor(Math.random() * 12) + 1;
     const operations = ['+', '-', '*', '/'];
     let operation = operations[Math.floor(Math.random() * operations.length)];
     if (operation === '/') {
