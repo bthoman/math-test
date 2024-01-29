@@ -3,6 +3,17 @@ let correctAnswers = 0;
 let incorrectProblems = [];
 let isReviewQuestion = false;
 let currentQuestion = '';
+let mode = 'easy'; // Default mode
+
+document.getElementById('easy-mode').addEventListener('click', function() {
+    mode = 'easy';
+    correctAnswer = generateQuestion();
+});
+
+document.getElementById('hard-mode').addEventListener('click', function() {
+    mode = 'hard';
+    correctAnswer = generateQuestion();
+});
 
 function generateQuestion() {
     if (incorrectProblems.length > 0 && Math.random() < 0.3) {
@@ -13,13 +24,35 @@ function generateQuestion() {
         return eval(currentQuestion);
     }
 
-    let num1 = Math.floor(Math.random() * 12) + 1;
-    let num2 = Math.floor(Math.random() * 12) + 1;
-    const operations = ['+', '-', '*', '/'];
-    let operation = operations[Math.floor(Math.random() * operations.length)];
+    let num1, num2;
+    if (mode === 'hard') {
+        num1 = Math.floor(Math.random() * 25) - 12; // Generates a number from -12 to 12
+        num2 = Math.floor(Math.random() * 25) - 12; // Generates a number from -12 to 12
+    } else {
+        num1 = Math.floor(Math.random() * 13); // Generates a number from 0 to 12
+        num2 = Math.floor(Math.random() * 13); // Generates a number from 0 to 12
+    }
+    
+    let operation;
+    if (mode === 'easy') {
+        // In easy mode, only generate addition and subtraction problems
+        operation = Math.random() < 0.5 ? '+' : '-';
+    } else {
+        // In hard mode, generate problems with all operations
+        const operations = ['+', '-', '*', '/'];
+        operation = operations[Math.floor(Math.random() * operations.length)];
+    }
     if (operation === '/') {
         num1 = num1 * num2; // Ensures a whole number for division
     }
+
+    if (num1 < 0) {
+        num1 = `(${num1})`;
+    }
+    if (num2 < 0) {
+        num2 = `(${num2})`;
+    }
+
     currentQuestion = `${num1} ${operation} ${num2}`;
     document.getElementById('question').innerText = `What is ${currentQuestion}?`;
     isReviewQuestion = false;
