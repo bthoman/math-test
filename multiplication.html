@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Multiplication Problem Generator</title>
+</head>
+<body>
+
+<h1>Multiplication Problem Generator</h1>
+
+<button id="generateBtn">Generate Problems</button>
+
+<h2>Generated Problems:</h2>
+<ul id="problemList"></ul>
+
+<script>
+    function generateProblems() {
+        const problems = [];
+        while (problems.length < 10) {
+            const multiplier = Math.floor(1 + Math.random() * 9); // Multiplier between 1 and 9
+            const multiplicand = Math.floor(1000 + Math.random() * 9000); // Four-digit multiplicand between 1000 and 9999
+            const product = multiplicand * multiplier;
+
+            // Ensure the product is less than or equal to 9999
+            if (product <= 9999) {
+                problems.push({ Multiplicand: multiplicand, Multiplier: multiplier, Product: product });
+            }
+        }
+        return problems;
+    }
+
+    function displayProblems() {
+        const problemList = document.getElementById('problemList');
+        problemList.innerHTML = '';
+
+        const problems = generateProblems();
+
+        problems.forEach(problem => {
+            const li = document.createElement('li');
+            li.textContent = `${problem.Multiplicand} × ${problem.Multiplier} = ${problem.Product}`;
+            problemList.appendChild(li);
+        });
+    }
+
+    document.getElementById('generateBtn').addEventListener('click', displayProblems);
+</script>
+
+</body>
+</html>
