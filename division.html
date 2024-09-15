@@ -35,8 +35,12 @@
         const problems = generateProblems();
 
         problems.forEach(problem => {
+            const quotient = Math.floor(problem.Dividend / problem.Divisor);
+            const remainder = problem.Dividend % problem.Divisor;
+            const solution = `${quotient} r ${remainder}`;
+
             const li = document.createElement('li');
-            li.textContent = `${problem.Dividend} ÷ ${problem.Divisor}`;
+            li.textContent = `${problem.Dividend} ÷ ${problem.Divisor} = ${solution}`;
             problemList.appendChild(li);
         });
     }
