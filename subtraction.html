@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Subtraction Problem Generator</title>
+</head>
+<body>
+
+<h1>Subtraction Problem Generator</h1>
+
+<h2>Select Categories:</h2>
+<label><input type="checkbox" id="static"> Static</label>
+<label><input type="checkbox" id="dynamic1"> Dynamic (1 borrow)</label>
+<label><input type="checkbox" id="dynamic2"> Dynamic (2 borrows)</label>
+<label><input type="checkbox" id="dynamic3"> Dynamic (3 borrows)</label>
+
+<button id="generateBtn">Generate Problems</button>
+
+<h2>Generated Problems:</h2>
+<ul id="problemList"></ul>
+
+<script>
+    function generateNumber() {
+        return Math.floor(1000 + Math.random() * 9000); // Generate a random 4-digit number
+    }
+
+    function countBorrows(num1, num2) {
+        let borrowCount = 0;
+        let borrow = 0;
+
+        for (let i = 0; i < 4; i++) {
+            let digit1 = Math.floor(num1 / Math.pow(10, i)) % 10 - borrow;
+            const digit2 = Math.floor(num2 / Math.pow(10, i)) % 10;
+
+            if (digit1 < digit2) {
+                borrowCount++;
+                borrow = 1;
+            } else {
+                borrow = 0;
+            }
+        }
+
+        return borrowCount;
+    }
+
+    function generateProblems() {
+        const problems = [];
+        const selectedCategories = [];
+
+        if (document.getElementById('static').checked) {
+            selectedCategories.push({ type: 'Static', borrowCount: 0 });
+        }
+        if (document.getElementById('dynamic1').checked) {
+            selectedCategories.push({ type: 'Dynamic (1 borrow)', borrowCount: 1 });
+        }
+        if (document.getElementById('dynamic2').checked) {
+            selectedCategories.push({ type: 'Dynamic (2 borrows)', borrowCount: 2 });
+        }
+        if (document.getElementById('dynamic3').checked) {
+            selectedCategories.push({ type: 'Dynamic (3 borrows)', borrowCount: 3 });
+        }
+
+        if (selectedCategories.length === 0) {
+            alert('Please select at least one category.');
+            return problems;
+        }
+
+        const totalProblems = 10;
+        const totalCategories = selectedCategories.length;
+
+        // Sort categories from static to dynamic 1,2,3
+        selectedCategories.sort((a, b) => a.borrowCount - b.borrowCount);
+
+        // Determine desired number of problems per category
+        const baseProblemsPerCategory = Math.floor(totalProblems / totalCategories);
+        let extraProblems = totalProblems % totalCategories;
+
+        const desiredProblemCounts = {};
+        selectedCategories.forEach(category => {
+            let numProblems = baseProblemsPerCategory;
+            if (extraProblems > 0) {
+                numProblems += 1;
+                extraProblems--;
+            }
+            desiredProblemCounts[category.borrowCount] = numProblems;
+        });
+
+        // Initialize categoryProblems
+        const categoryProblems = {};
+        selectedCategories.forEach(category => {
+            categoryProblems[category.borrowCount] = [];
+        });
+
+        let attempts = 0;
+        const maxAttempts = 10000;
+        let totalGenerated = 0;
+
+        while (totalGenerated < totalProblems && attempts < maxAttempts) {
+            attempts++;
+            const num1 = generateNumber();
+            const num2 = generateNumber();
+
+            if (num1 < num2) continue; // Ensure result is not negative
+
+            const borrowCount = countBorrows(num1, num2);
+
+            if (categoryProblems.hasOwnProperty(borrowCount) &&
+                categoryProblems[borrowCount].length < desiredProblemCounts[borrowCount]) {
+
+                // Check for duplicates
+                let duplicate = false;
+                for (let cat in categoryProblems) {
+                    if (categoryProblems[cat].some(p =>
+                        p.Number1 === num1 && p.Number2 === num2
+                    )) {
+                        duplicate = true;
+                        break;
+                    }
+                }
+                if (duplicate) continue;
+
+                categoryProblems[borrowCount].push({ Number1: num1, Number2: num2, BorrowCount: borrowCount });
+                totalGenerated++;
+            }
+        }
+
+        if (totalGenerated < totalProblems) {
+            alert('Could not generate enough problems with the selected criteria.');
+        }
+
+        // Collect problems in order
+        selectedCategories.forEach(category => {
+            problems.push(...categoryProblems[category.borrowCount]);
+        });
+
+        return problems;
+    }
+
+    function displayProblems() {
+        const problemList = document.getElementById('problemList');
+        problemList.innerHTML = '';
+
+        const problems = generateProblems();
+
+        problems.forEach(problem => {
+            const borrowStatus = problem.BorrowCount > 0 ? `Dynamic (${problem.BorrowCount} borrows)` : 'Static';
+            const li = document.createElement('li');
+            li.textContent = `${problem.Number1} - ${problem.Number2} (${borrowStatus})`;
+            problemList.appendChild(li);
+        });
+    }
+
+    document.getElementById('generateBtn').addEventListener('click', displayProblems);
+</script>
+
+</body>
+</html>
