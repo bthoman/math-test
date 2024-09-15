@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Division Problem Generator</title>
+</head>
+<body>
+
+<h1>Division Problem Generator</h1>
+
+<button id="generateBtn">Generate Problems</button>
+
+<h2>Generated Problems:</h2>
+<ul id="problemList"></ul>
+
+<script>
+    function generateProblems() {
+        const problems = [];
+        while (problems.length < 10) {
+            const divisor = Math.floor(1 + Math.random() * 9); // Divisor between 1 and 9
+            const dividend = Math.floor(1000 + Math.random() * 9000); // Dividend between 1000 and 9999
+
+            // Ensure the divisor is not zero and dividend is greater than or equal to divisor
+            if (divisor !== 0 && dividend >= divisor) {
+                problems.push({ Dividend: dividend, Divisor: divisor });
+            }
+        }
+        return problems;
+    }
+
+    function displayProblems() {
+        const problemList = document.getElementById('problemList');
+        problemList.innerHTML = '';
+
+        const problems = generateProblems();
+
+        problems.forEach(problem => {
+            const li = document.createElement('li');
+            li.textContent = `${problem.Dividend} ÷ ${problem.Divisor}`;
+            problemList.appendChild(li);
+        });
+    }
+
+    document.getElementById('generateBtn').addEventListener('click', displayProblems);
+</script>
+
+</body>
+</html>
