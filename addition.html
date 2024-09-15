@@ -8,6 +8,13 @@
 <body>
 
     <h1>Math Problem Generator</h1>
+
+    <h2>Select Categories:</h2>
+    <label><input type="checkbox" id="static"> Static</label>
+    <label><input type="checkbox" id="dynamic1"> Dynamic (1 carry)</label>
+    <label><input type="checkbox" id="dynamic2"> Dynamic (2 carries)</label>
+    <label><input type="checkbox" id="dynamic3"> Dynamic (3 carries)</label>
+
     <button id="generateBtn">Generate Problems</button>
 
     <h2>Generated Problems:</h2>
@@ -41,17 +48,26 @@
 
         function generateProblems() {
             const problems = [];
-            let problemCount = 0;
+            const includeStatic = document.getElementById('static').checked;
+            const includeDynamic1 = document.getElementById('dynamic1').checked;
+            const includeDynamic2 = document.getElementById('dynamic2').checked;
+            const includeDynamic3 = document.getElementById('dynamic3').checked;
 
-            while (problemCount < 10) {
+            while (problems.length < 10) {
                 const num1 = generateNumber();
                 const num2 = generateNumber();
+                const carryCount = countCarries(num1, num2);
 
-                // Ensure the sum does not exceed 9999
-                if (num1 + num2 <= 9999) {
-                    const carryCount = countCarries(num1, num2);
+                if (num1 + num2 > 9999) continue;
+
+                if (includeStatic && carryCount === 0) {
                     problems.push({ Number1: num1, Number2: num2, CarryCount: carryCount });
-                    problemCount++;
+                } else if (includeDynamic1 && carryCount === 1) {
+                    problems.push({ Number1: num1, Number2: num2, CarryCount: carryCount });
+                } else if (includeDynamic2 && carryCount === 2) {
+                    problems.push({ Number1: num1, Number2: num2, CarryCount: carryCount });
+                } else if (includeDynamic3 && carryCount === 3) {
+                    problems.push({ Number1: num1, Number2: num2, CarryCount: carryCount });
                 }
             }
 
@@ -67,13 +83,4 @@
             problems.forEach(problem => {
                 const carryStatus = problem.CarryCount > 0 ? `Dynamic (${problem.CarryCount} carries)` : 'Static';
                 const li = document.createElement('li');
-                li.textContent = `${problem.Number1} + ${problem.Number2} (${carryStatus})`;
-                problemList.appendChild(li);
-            });
-        }
-
-        document.getElementById('generateBtn').addEventListener('click', displayProblems);
-    </script>
-
-</body>
-</html>
+                li.textContent = `${​⬤
