@@ -46,39 +46,94 @@
 
     function generateProblems() {
         const problems = [];
-        const includeStatic = document.getElementById('static').checked;
-        const includeDynamic1 = document.getElementById('dynamic1').checked;
-        const includeDynamic2 = document.getElementById('dynamic2').checked;
-        const includeDynamic3 = document.getElementById('dynamic3').checked;
+        const selectedCategories = [];
 
-        if (!includeStatic && !includeDynamic1 && !includeDynamic2 && !includeDynamic3) {
+        if (document.getElementById('static').checked) {
+            selectedCategories.push({ type: 'Static', carryCount: 0 });
+        }
+        if (document.getElementById('dynamic1').checked) {
+            selectedCategories.push({ type: 'Dynamic (1 carry)', carryCount: 1 });
+        }
+        if (document.getElementById('dynamic2').checked) {
+            selectedCategories.push({ type: 'Dynamic (2 carries)', carryCount: 2 });
+        }
+        if (document.getElementById('dynamic3').checked) {
+            selectedCategories.push({ type: 'Dynamic (3 carries)', carryCount: 3 });
+        }
+
+        if (selectedCategories.length === 0) {
             alert('Please select at least one category.');
             return problems;
         }
 
+        const totalProblems = 10;
+        const totalCategories = selectedCategories.length;
+
+        // Sort categories from static to dynamic 1,2,3
+        selectedCategories.sort((a, b) => a.carryCount - b.carryCount);
+
+        // Determine desired number of problems per category
+        const baseProblemsPerCategory = Math.floor(totalProblems / totalCategories);
+        let extraProblems = totalProblems % totalCategories;
+
+        const desiredProblemCounts = {};
+        selectedCategories.forEach(category => {
+            let numProblems = baseProblemsPerCategory;
+            if (extraProblems > 0) {
+                numProblems += 1;
+                extraProblems--;
+            }
+            desiredProblemCounts[category.carryCount] = numProblems;
+        });
+
+        // Initialize categoryProblems
+        const categoryProblems = {};
+        selectedCategories.forEach(category => {
+            categoryProblems[category.carryCount] = [];
+        });
+
         let attempts = 0;
-        while (problems.length < 10 && attempts < 1000) {
+        const maxAttempts = 10000;
+        let totalGenerated = 0;
+
+        while (totalGenerated < totalProblems && attempts < maxAttempts) {
             attempts++;
             const num1 = generateNumber();
             const num2 = generateNumber();
-            const carryCount = countCarries(num1, num2);
 
             if (num1 + num2 > 9999) continue;
 
-            if (includeStatic && carryCount === 0) {
-                problems.push({ Number1: num1, Number2: num2, CarryCount: carryCount });
-            } else if (includeDynamic1 && carryCount === 1) {
-                problems.push({ Number1: num1, Number2: num2, CarryCount: carryCount });
-            } else if (includeDynamic2 && carryCount === 2) {
-                problems.push({ Number1: num1, Number2: num2, CarryCount: carryCount });
-            } else if (includeDynamic3 && carryCount === 3) {
-                problems.push({ Number1: num1, Number2: num2, CarryCount: carryCount });
+            const carryCount = countCarries(num1, num2);
+
+            if (categoryProblems.hasOwnProperty(carryCount) &&
+                categoryProblems[carryCount].length < desiredProblemCounts[carryCount]) {
+
+                // Check for duplicates
+                let duplicate = false;
+                for (let cat in categoryProblems) {
+                    if (categoryProblems[cat].some(p =>
+                        (p.Number1 === num1 && p.Number2 === num2) ||
+                        (p.Number1 === num2 && p.Number2 === num1)
+                    )) {
+                        duplicate = true;
+                        break;
+                    }
+                }
+                if (duplicate) continue;
+
+                categoryProblems[carryCount].push({ Number1: num1, Number2: num2, CarryCount: carryCount });
+                totalGenerated++;
             }
         }
 
-        if (problems.length < 10) {
+        if (totalGenerated < totalProblems) {
             alert('Could not generate enough problems with the selected criteria.');
         }
+
+        // Collect problems in order
+        selectedCategories.forEach(category => {
+            problems.push(...categoryProblems[category.carryCount]);
+        });
 
         return problems;
     }
