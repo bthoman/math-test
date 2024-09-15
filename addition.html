@@ -8,6 +8,13 @@
         body {
             font-family: Arial, sans-serif;
         }
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .column {
+            width: 45%;
+        }
         ul {
             list-style-type: none;
             padding: 0;
@@ -48,7 +55,10 @@
     <button id="generateBtn">Generate Problems</button>
 
     <h2>Generated Problems:</h2>
-    <ul id="problemList"></ul>
+    <div class="container">
+        <div id="column1" class="column"></div>
+        <div id="column2" class="column"></div>
+    </div>
 
     <script>
         function generateNumber() {
@@ -105,12 +115,14 @@
         }
 
         function displayProblems() {
-            const problemList = document.getElementById('problemList');
-            problemList.innerHTML = ''; // Clear the previous list
-
             const problems = generateProblems();
+            const column1 = document.getElementById('column1');
+            const column2 = document.getElementById('column2');
 
-            problems.forEach(problem => {
+            column1.innerHTML = ''; // Clear the previous list
+            column2.innerHTML = ''; // Clear the previous list
+
+            problems.forEach((problem, index) => {
                 const li = document.createElement('li');
                 li.innerHTML = `
                     <div class="problem">
@@ -122,7 +134,13 @@
                         <hr style="width: 100px;">
                     </div>
                 `;
-                problemList.appendChild(li);
+                
+                // Append problems to columns
+                if (index < 5) {
+                    column1.appendChild(li);
+                } else {
+                    column2.appendChild(li);
+                }
             });
         }
 
