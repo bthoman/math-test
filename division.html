@@ -8,6 +8,8 @@
 
 <h1>Division Problem Generator</h1>
 
+<label><input type="checkbox" id="includeRemainders"> Allow Remainders</label>
+<br><br>
 <button id="generateBtn">Generate Problems</button>
 
 <h2>Generated Problems:</h2>
@@ -16,9 +18,23 @@
 <script>
     function generateProblems() {
         const problems = [];
+        const allowRemainders = document.getElementById('includeRemainders').checked;
+
         while (problems.length < 10) {
             const divisor = Math.floor(1 + Math.random() * 9); // Divisor between 1 and 9
-            const dividend = Math.floor(1000 + Math.random() * 9000); // Dividend between 1000 and 9999
+            let dividend;
+
+            if (allowRemainders) {
+                // Any 4-digit dividend
+                dividend = Math.floor(1000 + Math.random() * 9000);
+            } else {
+                // Dividend must be a multiple of divisor
+                const quotient = Math.floor(100 + Math.random() * 900); // Quotient between 100 and 999
+                dividend = divisor * quotient;
+                if (dividend < 1000 || dividend > 9999) {
+                    continue; // Ensure it's a 4-digit number
+                }
+            }
 
             // Ensure the divisor is not zero and dividend is greater than or equal to divisor
             if (divisor !== 0 && dividend >= divisor) {
@@ -34,10 +50,18 @@
 
         const problems = generateProblems();
 
+        const allowRemainders = document.getElementById('includeRemainders').checked;
+
         problems.forEach(problem => {
             const quotient = Math.floor(problem.Dividend / problem.Divisor);
             const remainder = problem.Dividend % problem.Divisor;
-            const solution = `${quotient} r ${remainder}`;
+
+            let solution;
+            if (allowRemainders) {
+                solution = `${quotient} r ${remainder}`;
+            } else {
+                solution = `${quotient}`;
+            }
 
             const li = document.createElement('li');
             li.textContent = `${problem.Dividend} ÷ ${problem.Divisor} = ${solution}`;
