@@ -2,85 +2,103 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Problem Generator</title>
 </head>
 <body>
 
-    <h1>Math Problem Generator</h1>
+<h1>Math Problem Generator</h1>
 
-    <h2>Select Categories:</h2>
-    <label><input type="checkbox" id="static"> Static</label>
-    <label><input type="checkbox" id="dynamic1"> Dynamic (1 carry)</label>
-    <label><input type="checkbox" id="dynamic2"> Dynamic (2 carries)</label>
-    <label><input type="checkbox" id="dynamic3"> Dynamic (3 carries)</label>
+<h2>Select Categories:</h2>
+<label><input type="checkbox" id="static"> Static</label>
+<label><input type="checkbox" id="dynamic1"> Dynamic (1 carry)</label>
+<label><input type="checkbox" id="dynamic2"> Dynamic (2 carries)</label>
+<label><input type="checkbox" id="dynamic3"> Dynamic (3 carries)</label>
 
-    <button id="generateBtn">Generate Problems</button>
+<button id="generateBtn">Generate Problems</button>
 
-    <h2>Generated Problems:</h2>
-    <ul id="problemList"></ul>
+<h2>Generated Problems:</h2>
+<ul id="problemList"></ul>
 
-    <script>
-        function generateNumber() {
-            // Generate a random 4-digit number
-            return Math.floor(1000 + Math.random() * 9000);
+<script>
+    function generateNumber() {
+        return Math.floor(1000 + Math.random() * 9000);
+    }
+
+    function countCarries(num1, num2) {
+        let carryCount = 0;
+        let carry = 0;
+
+        for (let i = 0; i < 4; i++) {
+            const digit1 = Math.floor(num1 / Math.pow(10, i)) % 10;
+            const digit2 = Math.floor(num2 / Math.pow(10, i)) % 10;
+            const sum = digit1 + digit2 + carry;
+
+            if (sum >= 10) {
+                carryCount++;
+                carry = 1;
+            } else {
+                carry = 0;
+            }
         }
 
-        function countCarries(num1, num2) {
-            let carryCount = 0;
-            let carry = 0;
+        return carryCount;
+    }
 
-            for (let i = 0; i < 4; i++) {
-                const digit1 = Math.floor(num1 / Math.pow(10, i)) % 10;
-                const digit2 = Math.floor(num2 / Math.pow(10, i)) % 10;
-                const sum = digit1 + digit2 + carry;
+    function generateProblems() {
+        const problems = [];
+        const includeStatic = document.getElementById('static').checked;
+        const includeDynamic1 = document.getElementById('dynamic1').checked;
+        const includeDynamic2 = document.getElementById('dynamic2').checked;
+        const includeDynamic3 = document.getElementById('dynamic3').checked;
 
-                if (sum >= 10) {
-                    carryCount++;
-                    carry = 1;
-                } else {
-                    carry = 0;
-                }
-            }
-
-            return carryCount;
-        }
-
-        function generateProblems() {
-            const problems = [];
-            const includeStatic = document.getElementById('static').checked;
-            const includeDynamic1 = document.getElementById('dynamic1').checked;
-            const includeDynamic2 = document.getElementById('dynamic2').checked;
-            const includeDynamic3 = document.getElementById('dynamic3').checked;
-
-            while (problems.length < 10) {
-                const num1 = generateNumber();
-                const num2 = generateNumber();
-                const carryCount = countCarries(num1, num2);
-
-                if (num1 + num2 > 9999) continue;
-
-                if (includeStatic && carryCount === 0) {
-                    problems.push({ Number1: num1, Number2: num2, CarryCount: carryCount });
-                } else if (includeDynamic1 && carryCount === 1) {
-                    problems.push({ Number1: num1, Number2: num2, CarryCount: carryCount });
-                } else if (includeDynamic2 && carryCount === 2) {
-                    problems.push({ Number1: num1, Number2: num2, CarryCount: carryCount });
-                } else if (includeDynamic3 && carryCount === 3) {
-                    problems.push({ Number1: num1, Number2: num2, CarryCount: carryCount });
-                }
-            }
-
+        if (!includeStatic && !includeDynamic1 && !includeDynamic2 && !includeDynamic3) {
+            alert('Please select at least one category.');
             return problems;
         }
 
-        function displayProblems() {
-            const problemList = document.getElementById('problemList');
-            problemList.innerHTML = ''; // Clear the previous list
+        let attempts = 0;
+        while (problems.length < 10 && attempts < 1000) {
+            attempts++;
+            const num1 = generateNumber();
+            const num2 = generateNumber();
+            const carryCount = countCarries(num1, num2);
 
-            const problems = generateProblems();
+            if (num1 + num2 > 9999) continue;
 
-            problems.forEach(problem => {
-                const carryStatus = problem.CarryCount > 0 ? `Dynamic (${problem.CarryCount} carries)` : 'Static';
-                const li = document.createElement('li');
-                li.textContent = `${​⬤
+            if (includeStatic && carryCount === 0) {
+                problems.push({ Number1: num1, Number2: num2, CarryCount: carryCount });
+            } else if (includeDynamic1 && carryCount === 1) {
+                problems.push({ Number1: num1, Number2: num2, CarryCount: carryCount });
+            } else if (includeDynamic2 && carryCount === 2) {
+                problems.push({ Number1: num1, Number2: num2, CarryCount: carryCount });
+            } else if (includeDynamic3 && carryCount === 3) {
+                problems.push({ Number1: num1, Number2: num2, CarryCount: carryCount });
+            }
+        }
+
+        if (problems.length < 10) {
+            alert('Could not generate enough problems with the selected criteria.');
+        }
+
+        return problems;
+    }
+
+    function displayProblems() {
+        const problemList = document.getElementById('problemList');
+        problemList.innerHTML = '';
+
+        const problems = generateProblems();
+
+        problems.forEach(problem => {
+            const carryStatus = problem.CarryCount > 0 ? `Dynamic (${problem.CarryCount} carries)` : 'Static';
+            const li = document.createElement('li');
+            li.textContent = `${problem.Number1} + ${problem.Number2} (${carryStatus})`;
+            problemList.appendChild(li);
+        });
+    }
+
+    document.getElementById('generateBtn').addEventListener('click', displayProblems);
+</script>
+
+</body>
+</html>
