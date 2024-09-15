@@ -4,50 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Problem Generator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        .container {
-            display: flex;
-            justify-content: space-between;
-        }
-        .column {
-            width: 45%;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            margin-bottom: 20px;
-            font-size: 24px;
-        }
-        .problem {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
-        .plus-line {
-            display: flex;
-            align-items: center;
-        }
-        .plus-sign {
-            margin-right: 10px;
-        }
-        .thousands {
-            color: green;
-        }
-        .hundreds {
-            color: red;
-        }
-        .tens {
-            color: blue;
-        }
-        .ones {
-            color: green;
-        }
-    </style>
 </head>
 <body>
 
@@ -55,10 +11,7 @@
     <button id="generateBtn">Generate Problems</button>
 
     <h2>Generated Problems:</h2>
-    <div class="container">
-        <div id="column1" class="column"></div>
-        <div id="column2" class="column"></div>
-    </div>
+    <ul id="problemList"></ul>
 
     <script>
         function generateNumber() {
@@ -66,7 +19,7 @@
             return Math.floor(1000 + Math.random() * 9000);
         }
 
-        function hasOneCarryOver(num1, num2) {
+        function countCarries(num1, num2) {
             let carryCount = 0;
             let carry = 0;
 
@@ -83,7 +36,7 @@
                 }
             }
 
-            return carryCount === 1;
+            return carryCount;
         }
 
         function generateProblems() {
@@ -95,8 +48,9 @@
                 const num2 = generateNumber();
 
                 // Ensure the sum does not exceed 9999
-                if (num1 + num2 <= 9999 && hasOneCarryOver(num1, num2)) {
-                    problems.push({ Number1: num1, Number2: num2 });
+                if (num1 + num2 <= 9999) {
+                    const carryCount = countCarries(num1, num2);
+                    problems.push({ Number1: num1, Number2: num2, CarryCount: carryCount });
                     problemCount++;
                 }
             }
@@ -104,43 +58,17 @@
             return problems;
         }
 
-        function colorizeNumber(num) {
-            const digits = String(num).padStart(4, '0').split(''); // Ensures 4 digits
-            return `
-                <span class="thousands">${digits[0]}</span>
-                <span class="hundreds">${digits[1]}</span>
-                <span class="tens">${digits[2]}</span>
-                <span class="ones">${digits[3]}</span>
-            `;
-        }
-
         function displayProblems() {
+            const problemList = document.getElementById('problemList');
+            problemList.innerHTML = ''; // Clear the previous list
+
             const problems = generateProblems();
-            const column1 = document.getElementById('column1');
-            const column2 = document.getElementById('column2');
 
-            column1.innerHTML = ''; // Clear the previous list
-            column2.innerHTML = ''; // Clear the previous list
-
-            problems.forEach((problem, index) => {
+            problems.forEach(problem => {
+                const carryStatus = problem.CarryCount > 0 ? `Dynamic (${problem.CarryCount} carries)` : 'Static';
                 const li = document.createElement('li');
-                li.innerHTML = `
-                    <div class="problem">
-                        <div>${colorizeNumber(problem.Number1)}</div>
-                        <div class="plus-line">
-                            <span class="plus-sign">+</span>
-                            <div>${colorizeNumber(problem.Number2)}</div>
-                        </div>
-                        <hr style="width: 100px;">
-                    </div>
-                `;
-                
-                // Append problems to columns
-                if (index < 5) {
-                    column1.appendChild(li);
-                } else {
-                    column2.appendChild(li);
-                }
+                li.textContent = `${problem.Number1} + ${problem.Number2} (${carryStatus})`;
+                problemList.appendChild(li);
             });
         }
 
